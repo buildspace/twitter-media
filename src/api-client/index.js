@@ -5,9 +5,10 @@ const stringify = require('./stringify');
 const DEFAULT_CHUNK_SIZE = 1084576;
 
 module.exports = class APIClient {
-    constructor(oauth) {
+    constructor(oauth, opts = {}) {
         this.endpoint = 'https://upload.twitter.com/1.1/media/upload.json';
         this.oauth = oauth;
+        this.additionalOwners = opts.additionalOwners ? opts.additionalOwners.join(',') : null;
     }
 
     uploadImage(buffer) {
@@ -98,6 +99,9 @@ module.exports = class APIClient {
     _request(params) {
         return new Promise((resolve, reject) => {
             const defaultParams = { url: this.endpoint, oauth: this.oauth, json: true, method: 'POST' };
+            if (this.additionalOwners) {
+              defaultParams.additionalOwners = this.additionalOwners;
+            }
             request(Object.assign(defaultParams, params), (error, response, body) => {
                 const isOK = response.statusCode >= 200 && response.statusCode < 300;
                 isOK ? resolve(body) : reject(new Error(`Error occurred fetching with params: ${stringify(params)}. Response: ${stringify(response)}`));
