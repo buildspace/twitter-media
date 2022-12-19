@@ -2,8 +2,8 @@ const ApiClient = require('./api-client');
 const SUPPORTED_TYPES = new Set(['image', 'video']);
 
 module.exports = class MediaUpload {
-    constructor(oauth) {
-        this._client = new ApiClient(oauth);
+    constructor(oauth, opts) {
+        this._client = new ApiClient(oauth, opts);
     }
 
     uploadImageSet(images, cb) {

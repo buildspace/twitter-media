@@ -12,7 +12,11 @@ module.exports = class APIClient {
     }
 
     uploadImage(buffer) {
-        return this._request({ formData: { media: buffer } });
+        const formData = { media: buffer }
+        if (this.additionalOwners) {
+            formData.additional_owners = this.additionalOwners;
+        }
+        return this._request({ formData });
     }
 
     uploadVideo(buffer, chunkSize) {
@@ -26,16 +30,16 @@ module.exports = class APIClient {
     }
 
     _initUpload(size) {
-        const params = {
-            formData: {
-                command: 'INIT',
-                media_type: 'video/mp4',
-                media_category: 'tweet_video',
-                total_bytes: size
-            }
-        };
-
-        return this._request(params).then((json) => json.media_id_string);
+        const formData = {
+            command: 'INIT',
+            media_type: 'video/mp4',
+            media_category: 'tweet_video',
+            total_bytes: size
+        }
+        if (this.additionalOwners) {
+            formData.additional_owners = this.additionalOwners;
+        }
+        return this._request({ formData }).then((json) => json.media_id_string);
     }
 
     _appendMedia(mediaID, buffer, chunkSize = DEFAULT_CHUNK_SIZE) {
@@ -99,9 +103,6 @@ module.exports = class APIClient {
     _request(params) {
         return new Promise((resolve, reject) => {
             const defaultParams = { url: this.endpoint, oauth: this.oauth, json: true, method: 'POST' };
-            if (this.additionalOwners) {
-              defaultParams.additionalOwners = this.additionalOwners;
-            }
             request(Object.assign(defaultParams, params), (error, response, body) => {
                 const isOK = response.statusCode >= 200 && response.statusCode < 300;
                 isOK ? resolve(body) : reject(new Error(`Error occurred fetching with params: ${stringify(params)}. Response: ${stringify(response)}`));
