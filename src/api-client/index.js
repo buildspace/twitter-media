@@ -105,7 +105,7 @@ module.exports = class APIClient {
             const defaultParams = { url: this.endpoint, oauth: this.oauth, json: true, method: 'POST' };
             request(Object.assign(defaultParams, params), (error, response, body) => {
                 const isOK = response.statusCode >= 200 && response.statusCode < 300;
-                isOK ? resolve(body) : reject(new Error(`Error occurred fetching with params: ${stringify(params)}. Response: ${stringify(response)}`));
+                isOK ? resolve(body) : reject(new Error(`Error occurred, ${JSON.stringify(body)}`));
             });
         }).then((response) => {
             const error = extractError(response);
